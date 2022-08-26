@@ -1,12 +1,7 @@
 import "./style.css";
 
-// To Do
-// Put application into a shadowDOM
-// Create a submit button for comments
-// Create a function for comment
-// Fix styling 
-// Use indexDB for offline use
-// 
+// TO DO
+// Use Title and Year to search as an index
 
 document.querySelector("#app").innerHTML = `
 <style>
@@ -152,8 +147,60 @@ function showError(error) {
 </div>
 `};
 
-/* function render(state) {
+const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shinIndexedDB;
 
+const request = window.indexedDB.open("movieCollection", 1);
 
-} */
+request.onerror = (e) => {
+    console.error("Hey! You got an error with your request :(...");
+    console.error(e);
+  };
 
+  request.onupgradeneeded = function () {
+    // Save the IDBDatabase interface
+    const db = request.result;
+      // Create an objectStore for this database
+  const objectStore = db.createObjectStore("movieCollection", { keyPath: "id" });
+  objectStore.createIndex("movie_genre", ["genre"], { unique: false });
+  objectStore.createIndex("genre_and_year", ["genre", "year"], {
+    unique: false, 
+  });   
+
+};
+
+request.onsuccess = function () {
+    const db = request.result;
+    const transaction = db.transaction("genre", "readwrite");
+ 
+    // This lets me look up the values stored in my objectStore
+    // Im doing so by using the value of the property store object
+  const objectStore = transaction.objectStore("movieCollection");
+  const genreIndex = objectStore.index("movie_genre");
+  const genreAndYearIndex = objectStore.index("genre_and_year");
+
+  objectStore.put({ id: 1, genre: "Romance", year: 2020 });
+  objectStore.put({ id: 2, genre: "Anime", year: 2017 });
+  objectStore.put({ id: 3, genre: "Action", year: 2019 });
+  objectStore.put({ id: 4, genre: "Drama", year: 2013 });
+
+  const idQuery = objectStore.get(4);
+  const genreQuery = genreIndex.getAll("Anime");
+  const genreYearQuery = genreAndYearIndex.get(["Romance", 2019]);
+// I put a label besides the variable value to know where it came from
+  idQuery.onsuccess = function () {
+    console.log("idQuery", idQuery.result);
+
+  }
+  genreQuery.onsuccess = function () {
+    console.log("genreQuery", genreQuery);
+
+  }
+
+  genreYearQuery.onsuccess = function () {
+    console.log("genreYearQuery", genreYearQuery.result);
+  }
+
+  transaction.oncomplete = function () {
+    db.close();
+  }
+}; 

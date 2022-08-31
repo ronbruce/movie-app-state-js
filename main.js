@@ -52,9 +52,9 @@ const form = document.querySelector("form");
 const input = document.querySelector("#searchTerm");
 const resultsSection = document.querySelector("#results");
 const favoritesSection = document.querySelector("#favorites");
-
 const APIKEY = import.meta.env.VITE_OMDB_API_KEY;
 const API_URL = `http://www.omdbapi.com/?apikey=${APIKEY}&type=movie&s=`;
+
 
 const state = {
   searchTerm: '',
@@ -78,6 +78,7 @@ async function formSubmitted(e) {
    } catch(error) {
     showError(error);
   }
+  
   }
 // Send what the user has typed to the API to get back results
 async function getResults(searchTerm) {
@@ -99,6 +100,7 @@ function showResults() {
   resultsSection.innerHTML = html;
 
   addButtonListeners();
+  
 }
 
 function addButtonListeners() {
@@ -109,7 +111,7 @@ function addButtonListeners() {
 
 }
 
-function buttonClicked(e) {
+export function buttonClicked(e) {
     const { id } = e.target.dataset;
     const movie = state.results.find(movie => movie.imdbID === id);
     state.favorites.push(movie);
@@ -117,6 +119,13 @@ function buttonClicked(e) {
     // Below I tried to get my favorites to show a result on the web page but its not working.
     // favoritesSection.innerHTML = favoritesSection.innerHTML + getMovieTemplate(movie, false);
     // So I used this document.getElementById to get results and add it to a seperate page.
+    /*const requestUpdate = ObjectStore.put(title);
+    requestUpdate.onerror = (e) => {
+      console.log("Ayo! Sorry, try again");
+    }
+    requestUpdate.onsuccess = (e) => {
+      console.log("Ah ha! You're good to go boss!")
+    } */
    
   }
 function updateFavoritesSection() {
@@ -147,60 +156,29 @@ function showError(error) {
 </div>
 `};
 
-const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shinIndexedDB;
 
-const request = window.indexedDB.open("movieCollection", 1);
+function getAllmovie(db) {
+  const txn = db.transaction('Movie', "readonly");
+  const objectStore = txn.objectStore('Movie');
 
-request.onerror = (e) => {
-    console.error("Hey! You got an error with your request :(...");
-    console.error(e);
+  objectStore.openCursor().onsuccess = (e) => {
+      let cursor = e.target.state.result;
+      if (cursor) {
+          let movie = cursor.value;
+          console.log(movie);
+          // continue next record
+          cursor.continue();
+      }
   };
+  // close the database connection
+  txn.oncomplete = function () {
+      db.close();
+  };
+}
 
-  request.onupgradeneeded = function () {
-    // Save the IDBDatabase interface
-    const db = request.result;
-      // Create an objectStore for this database
-  const objectStore = db.createObjectStore("movieCollection", { keyPath: "id" });
-  objectStore.createIndex("movie_genre", ["genre"], { unique: false });
-  objectStore.createIndex("genre_and_year", ["genre", "year"], {
-    unique: false, 
-  });   
 
+state.onsuccess = (e) => {
+  db = e.target.result;
+  getAllmovie(db);
+  console.log("Ah ha! Good to go!")
 };
-
-request.onsuccess = function () {
-    const db = request.result;
-    const transaction = db.transaction("genre", "readwrite");
- 
-    // This lets me look up the values stored in my objectStore
-    // Im doing so by using the value of the property store object
-  const objectStore = transaction.objectStore("movieCollection");
-  const genreIndex = objectStore.index("movie_genre");
-  const genreAndYearIndex = objectStore.index("genre_and_year");
-
-  objectStore.put({ id: 1, genre: "Romance", year: 2020 });
-  objectStore.put({ id: 2, genre: "Anime", year: 2017 });
-  objectStore.put({ id: 3, genre: "Action", year: 2019 });
-  objectStore.put({ id: 4, genre: "Drama", year: 2013 });
-
-  const idQuery = objectStore.get(4);
-  const genreQuery = genreIndex.getAll("Anime");
-  const genreYearQuery = genreAndYearIndex.get(["Romance", 2019]);
-// I put a label besides the variable value to know where it came from
-  idQuery.onsuccess = function () {
-    console.log("idQuery", idQuery.result);
-
-  }
-  genreQuery.onsuccess = function () {
-    console.log("genreQuery", genreQuery);
-
-  }
-
-  genreYearQuery.onsuccess = function () {
-    console.log("genreYearQuery", genreYearQuery.result);
-  }
-
-  transaction.oncomplete = function () {
-    db.close();
-  }
-}; 

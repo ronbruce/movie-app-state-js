@@ -111,7 +111,7 @@ function addButtonListeners() {
 
 }
 
-export function buttonClicked(e) {
+function buttonClicked(e) {
     const { id } = e.target.dataset;
     const movie = state.results.find(movie => movie.imdbID === id);
     state.favorites.push(movie);
@@ -155,30 +155,3 @@ function showError(error) {
   ${error.message}
 </div>
 `};
-
-
-function getAllmovie(db) {
-  const txn = db.transaction('Movie', "readonly");
-  const objectStore = txn.objectStore('Movie');
-
-  objectStore.openCursor().onsuccess = (e) => {
-      let cursor = e.target.state.result;
-      if (cursor) {
-          let movie = cursor.value;
-          console.log(movie);
-          // continue next record
-          cursor.continue();
-      }
-  };
-  // close the database connection
-  txn.oncomplete = function () {
-      db.close();
-  };
-}
-
-
-state.onsuccess = (e) => {
-  db = e.target.result;
-  getAllmovie(db);
-  console.log("Ah ha! Good to go!")
-};

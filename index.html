@@ -2,13 +2,91 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="https://bootswatch.com/4/lux/bootstrap.min.css">
+    <link rel="stylesheet" href="/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
+    <title>Movie App</title>
   </head>
   <body>
+    <legend>Movie App</legend>
+    <form action="POST" id="search">
+      <div class="form-group">
+        <label for="search">Search</label>
+        <input type="text" class="form-control" id="search" placeholder="Enter movie title" required>
+        </div>
+        <div class="form-group">
+          <label for="year">Year</label>
+          <input type="number"
+          id="year"
+          name="year"
+          min="1888"
+          placeholder="Enter a year">
+          </div>
+        <div class="form-group">
+          <label for="key">API Key</label>
+          <input
+          type="text"
+          id="key"
+          name="key"
+          placeholder="Enter your API Key"
+          required>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">Go</button>
+            </div>
+            <div>
+            <button type="reset" value="Reset">Reset</button>
+          </div>
+    </form>
+    <section class="row">
+      <section id="results">
+
+
+      </section>
+      <section class="mt-2 col-3 row">
+
+      <h3>Favorites</h3>
+
+      <section id="favorites">
+      </section>
+      </section>
+      </section>
+
+      <script>
+        function getMovieTemplate(movie, cols, comment, button = true) {
+  return `<div class="card ${cols-4}">
+  <img class="card-img-top" src="${movie.Poster}" alt="${movie.Title}">
+  <div class="card-body">
+    <h5 class="card-title">${movie.Title}</h5>
+    <p class="card-text">${movie.Year}</p>
+    <textarea type="text" id=${comment} rows="4" cols="40"></textarea>
+    ${
+      button ?
+   ` <button data-id="${movie.imdbID}" type="button" class="btn btn-danger favorites-button">Favorites</button>`
+    : ''
+    }
+</div>`;
+}
+      </script>
+
+      <!-- <template id="getMovieTemplate">
+        <div class="movie">
+          <img class="movie-poster" src="" alt="">
+          <div>
+            <h3 class="movie-title"></h3>
+            <p class="movie-year"></p>
+            <button class="favorites">Favorites</button>
+          </div>
+        </div>
+        <textarea
+        name=""
+        id=""
+        cols=""
+        rows=""
+        ></textarea>
+      </template> -->
+
+
     <div id="app"></div>
     <script type="module" src="/main.js"></script>
-    <script type="module" src="/database.js"></script>
      </body>
 </html>

@@ -1,70 +1,62 @@
-import "./style.css";
+import './movie.js';
 
-// TO DO
-// Use Title and Year to search as an index
-
-document.querySelector("#app").innerHTML = `
-<style>
-      .movies-area {
-        justify-content: space-around;
-        align-items: flex-start;
-      }
-
-#results {
-  column-count: 3;
-}
-
-    </style>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <a class="navbar-brand" href="#">Movie App</a>
-</nav>
-<main class="container mt-2">
-<form>
-<fieldset class="form-group">
-<label for="search">Search</label>
-<input type="text" class="form-control" id="searchTerm" placeholder="Enter movie title">
-</fieldset>
-<button type="submit" class="btn btn-primary">Go</button>
-</form>
-<section class="row">
-<section id="results">
-
-</section>
-<section class="mt-2 col-3 row">
-
-<h3>Favorites</h3>
-
-<section id="favorites">
-
-</section>
-</section>
-</section>
-
-<section>
-<div class="comment-display">
-
-</div>
-</section>
-</main>
-`;
 
 const form = document.querySelector("form");
-const input = document.querySelector("#searchTerm");
+const input = document.querySelector("#search");
+const year = document.querySelector("#year");
+const required = document.querySelector("[required]");
 const resultsSection = document.querySelector("#results");
 const favoritesSection = document.querySelector("#favorites");
+const apikey = document.querySelector('#key');
 const APIKEY = import.meta.env.VITE_OMDB_API_KEY;
 const API_URL = `http://www.omdbapi.com/?apikey=${APIKEY}&type=movie&s=`;
 
+/*for (const input of required) {
+  input
+  .closest(".form-group")
+  .querySelector("label")
+  .classList.add("required");
+}
+
+year.setAttribute('max', new Date().getFullYear());
+year.addEventListener('input', (e) => {
+  year.setCustomValidity('');
+  year.checkValidity();
+});
+
+year.addEventListener('invalid', () => {
+  if (Number(year.value) < Number(year.getAttribute('min'))) {
+    year.setCustomValidity(
+      `Year must be greater than or equal to ${year.getAttribute('min')}`,
+    );
+  } else if (Number(year.value) > Number(year.getAttribute('max'))) {
+    year.setCustomValidity(
+      `Year must be less than or equal to ${year.getAttribute('max')}`,
+    );
+  }
+});
+
+store.subscribe(
+  (state) => {
+    if (state.key) {
+      apikey.value = state.key;
+      apikey.closest('.form-group').style.display = 'none';
+    } else {
+      apikey.closest('.form-group').style.display = 'block';
+    }
+  },
+  ['key'],
+); */
 
 const state = {
-  searchTerm: '',
+  search: '',
   results: [],
   favorites: []
 
 };
 
 input.addEventListener("keyup", () => {
-  state.searchTerm = input.value;
+  state.search = input.value;
   console.log(state);
 });
 
@@ -73,7 +65,7 @@ form.addEventListener("submit", formSubmitted);
 async function formSubmitted(e) {
   e.preventDefault();
   try {
- state.results = await getResults(state.searchTerm);
+ state.results = await getResults(state.search);
   showResults()
    } catch(error) {
     showError(error);
@@ -111,7 +103,7 @@ function addButtonListeners() {
 
 }
 
-export function buttonClicked(e) {
+function buttonClicked(e) {
     const { id } = e.target.dataset;
     const movie = state.results.find(movie => movie.imdbID === id);
     state.favorites.push(movie);
@@ -135,50 +127,3 @@ function updateFavoritesSection() {
     
 }
 
-function getMovieTemplate(movie, cols, comment, button = true) {
-  return `<div class="card ${cols-4}">
-  <img class="card-img-top" src="${movie.Poster}" alt="${movie.Title}">
-  <div class="card-body">
-    <h5 class="card-title">${movie.Title}</h5>
-    <p class="card-text">${movie.Year}</p>
-    <textarea type="text" id=${comment} rows="4" cols="40"></textarea>
-    ${
-      button ?
-   ` <button data-id="${movie.imdbID}" type="button" class="btn btn-danger favorites-button">Favorites</button>`
-    : ''
-    }
-</div>`;
-}
-
-function showError(error) {
-  resultsSection.innerHTML = `<div class="alert alert-danger col" role="alert">
-  ${error.message}
-</div>
-`};
-
-
-function getAllmovie(db) {
-  const txn = db.transaction('Movie', "readonly");
-  const objectStore = txn.objectStore('Movie');
-
-  objectStore.openCursor().onsuccess = (e) => {
-      let cursor = e.target.state.result;
-      if (cursor) {
-          let movie = cursor.value;
-          console.log(movie);
-          // continue next record
-          cursor.continue();
-      }
-  };
-  // close the database connection
-  txn.oncomplete = function () {
-      db.close();
-  };
-}
-
-
-state.onsuccess = (e) => {
-  db = e.target.result;
-  getAllmovie(db);
-  console.log("Ah ha! Good to go!")
-};

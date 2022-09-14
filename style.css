@@ -1,7 +1,7 @@
-form {
-  position: relative;
-  width: 740px;
-  height: 100px;
-  margin: auto;
-  padding: 1em;
+#results {
+  grid-row: 1;
+}
+
+.row {
+  grid-row: 3;
 }

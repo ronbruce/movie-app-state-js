@@ -8,7 +8,7 @@
   </head>
   <body>
     <legend>Movie App</legend>
-    <form action="POST" id="search">
+    <form>
       <div class="form-group">
         <label for="search">Search</label>
         <input type="text" class="form-control" id="search" placeholder="Enter movie title" required>
@@ -39,7 +39,25 @@
     </form>
     <section class="row">
       <section id="results">
-
+        <script>
+          function getMovieTemplate(movie, cols, comment, button = true) {
+    return `<div class="card ${cols-3}">
+    <img class="movie-poster" src="${movie.Poster}" alt="${movie.Title}">
+    <div class="card-body">
+      <h5 class="movie-title">${movie.Title}</h5>
+      <p class="movie-year">${movie.Year}</p>
+      <div class="container">
+      <h1>Comment</h1>
+      <comment-box></comment-box>
+      </div>
+      ${
+        button ?
+     ` <button data-id="${movie.imdbID}" type="button" class="btn btn-danger favorites-button">Favorites</button>`
+      : ''
+      }
+  </div>`;
+  }
+        </script>
 
       </section>
       <section class="mt-2 col-3 row">
@@ -50,42 +68,7 @@
       </section>
       </section>
       </section>
-
-      <script>
-        function getMovieTemplate(movie, cols, comment, button = true) {
-  return `<div class="card ${cols-4}">
-  <img class="card-img-top" src="${movie.Poster}" alt="${movie.Title}">
-  <div class="card-body">
-    <h5 class="card-title">${movie.Title}</h5>
-    <p class="card-text">${movie.Year}</p>
-    <textarea type="text" id=${comment} rows="4" cols="40"></textarea>
-    ${
-      button ?
-   ` <button data-id="${movie.imdbID}" type="button" class="btn btn-danger favorites-button">Favorites</button>`
-    : ''
-    }
-</div>`;
-}
-      </script>
-
-      <!-- <template id="getMovieTemplate">
-        <div class="movie">
-          <img class="movie-poster" src="" alt="">
-          <div>
-            <h3 class="movie-title"></h3>
-            <p class="movie-year"></p>
-            <button class="favorites">Favorites</button>
-          </div>
-        </div>
-        <textarea
-        name=""
-        id=""
-        cols=""
-        rows=""
-        ></textarea>
-      </template> -->
-
-
+    
     <div id="app"></div>
     <script type="module" src="/main.js"></script>
      </body>

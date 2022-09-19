@@ -73,7 +73,7 @@ import "/main.js";
 
         database = undefined;
 
-        // set up html for the white screen after deleting database
+        // Ignore delete database code: I haven't set up html for this yet. 
         document.querySelectorAll("button").value;
         document.querySelector("h1").innerHTML = "You just deleted the database! Refresh the page to create a new one.";
         document.querySelector("h1").style = "color:" + background; // feature has not been created yet
@@ -97,7 +97,6 @@ import "/main.js";
         // get returns the object pointed to by the key, "save-data"
         storage.get("movie-key").addEventListener("success", function(e) {
 
-          // this.result is the object "save-data" was pointing to
           this.result.Notes = Notes;
           this.result.favorites = favorites;
 
